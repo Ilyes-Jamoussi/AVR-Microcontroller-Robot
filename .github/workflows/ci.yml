@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build firmware (avr-gcc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install AVR toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-avr avr-libc binutils-avr
+
+      - name: Build static library
+        run: make -C lib
+
+      - name: Build firmware
+        run: make -C app
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: app/robot.hex
